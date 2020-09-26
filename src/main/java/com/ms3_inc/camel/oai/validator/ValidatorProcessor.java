@@ -1,4 +1,4 @@
-package com.ms3.camelaccountsapi;
+package com.ms3_inc.camel.oai.validator;
 
 import com.atlassian.oai.validator.OpenApiInteractionValidator;
 import com.atlassian.oai.validator.model.Request;
@@ -21,13 +21,13 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.*;
 
-public class Validator extends AsyncProcessorSupport {
+public class ValidatorProcessor extends AsyncProcessorSupport {
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
     private OpenApiInteractionValidator validator;
     private Paths paths;
 
-    public Validator(String specPath) {
+    public ValidatorProcessor(String specPath) {
         validator = OpenApiInteractionValidator
                 .createFor(specPath)
                 .build();
