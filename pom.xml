@@ -8,6 +8,11 @@
     <artifactId>swagger-request-validator-camel</artifactId>
     <version>0.1.0-SNAPSHOT</version>
 
+    <properties>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>com.atlassian.oai</groupId>
@@ -23,6 +28,31 @@
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-support</artifactId>
             <version>3.5.0</version>
+        </dependency>
+        <!-- used for query params parsing -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>5.1.8.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-test-junit5</artifactId>
+            <version>3.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-netty-http</artifactId>
+            <version>3.5.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.camel</groupId>
+            <artifactId>camel-core</artifactId>
+            <version>3.5.0</version>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

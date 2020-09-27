@@ -1,0 +1,50 @@
+openapi: 3.0.0
+info:
+  title: hello-api
+  version: '1.0'
+paths:
+  /hello:
+    get:
+      parameters:
+        - name: foo-header
+          in: header
+          schema:
+            type: string
+          required: true
+        - name: bar-query
+          schema:
+            type: string
+          in: query
+          required: true
+      responses:
+        200:
+          description: greeting response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  greetings:
+                    type: string
+  /greeting:
+    post:
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - caller
+              properties:
+                caller:
+                  type: string
+      responses:
+        200:
+          description: greeting response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  greetings:
+                    type: string
