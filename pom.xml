@@ -7,23 +7,70 @@
     <groupId>com.ms3-inc.camel</groupId>
     <artifactId>rest-extensions</artifactId>
     <version>0.1.0-SNAPSHOT</version>
+    <inceptionYear>2019</inceptionYear>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Jose Montoya</name>
+            <email>jmontoya@ms3-inc.com</email>
+            <organization>MS3</organization>
+            <organizationUrl>https://ms3-inc.com</organizationUrl>
+        </developer>
+        <developer>
+            <name>Rob Ratcliffe</name>
+            <email>rratcliffe@ms3-inc.com</email>
+            <organization>MS3</organization>
+            <organizationUrl>https://ms3-inc.com</organizationUrl>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/MS3Inc/camel-extensions.git</connection>
+        <developerConnection>scm:git:git@github.com:MS3Inc/camel-extensions.git</developerConnection>
+        <url>https://github.com/MS3Inc/camel-extensions</url>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>ms3-nexus</id>
+            <name>maven-releases</name>
+            <url>https://maven.ms3-inc.com/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>ms3-nexus</id>
+            <name>maven-snapshots</name>
+            <url>https://maven.ms3-inc.com/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <camel.version>3.5.0</camel.version>
+        <mycila.version>4.0.rc2</mycila.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-api</artifactId>
-            <version>3.5.0</version>
+            <version>${camel.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-support</artifactId>
-            <version>3.5.0</version>
+            <version>${camel.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -41,21 +88,112 @@
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-test-junit5</artifactId>
-            <version>3.5.0</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-netty-http</artifactId>
-            <version>3.5.0</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.camel</groupId>
             <artifactId>camel-core</artifactId>
-            <version>3.5.0</version>
+            <version>${camel.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>${mycila.version}</version>
+                <configuration>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>${project.basedir}/src/build/license-header.txt</header>
+                            <excludes>
+                                <exclude>**/NOTICE</exclude>
+                                <exclude>**/LICENSE</exclude>
+                                <exclude>README.md</exclude>
+                                <exclude>mvnw*</exclude>
+                                <exclude>.mvn/**</exclude>
+                                <exclude>src/test/resources/**</exclude>
+                                <exclude>**/target/**</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
+                    <mapping>
+                        <java>UNDERSCORE_JAVAPKG_STYLE</java>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>license-headers</id>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.mycila</groupId>
+                        <artifactId>license-maven-plugin-git</artifactId>
+                        <version>${mycila.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.0.0-M1</version>
+                <configuration>
+                    <!-- avoid checkout/rebuild in release:perform -->
+                    <preparationGoals>clean deploy</preparationGoals>
+                    <arguments>-Prelease</arguments>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
 </project>
