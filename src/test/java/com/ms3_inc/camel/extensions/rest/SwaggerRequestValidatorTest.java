@@ -1,4 +1,4 @@
-package com.ms3_inc.camel.oai.validator;
+package com.ms3_inc.camel.extensions.rest;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
@@ -11,7 +11,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Test;
 
-class ValidatorProcessorTest extends CamelTestSupport {
+class SwaggerRequestValidatorTest extends CamelTestSupport {
 	@Test
 	public void testValid() throws Exception {
 		MockEndpoint mock = getMockEndpoint("mock:result");
@@ -46,7 +46,7 @@ class ValidatorProcessorTest extends CamelTestSupport {
 		return new RouteBuilder() {
 			public void configure() throws Exception {
 				interceptFrom()
-					.process(new ValidatorProcessor("api.yaml"));
+					.process(new SwaggerRequestValidator("api.yaml"));
 
 				onException(Exception.class)
 					.to("mock:error");

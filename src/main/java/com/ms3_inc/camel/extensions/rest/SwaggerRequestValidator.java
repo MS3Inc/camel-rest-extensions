@@ -1,11 +1,13 @@
-package com.ms3_inc.camel.oai.validator;
+package com.ms3_inc.camel.extensions.rest;
 
 import com.atlassian.oai.validator.OpenApiInteractionValidator;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.report.SimpleValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
+import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
 import org.apache.camel.AsyncCallback;
+import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;
 import org.apache.camel.support.AsyncProcessorSupport;
 import org.apache.camel.support.MessageHelper;
@@ -14,14 +16,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class ValidatorProcessor extends AsyncProcessorSupport {
+public class SwaggerRequestValidator extends AsyncProcessorSupport {
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private final OpenApiInteractionValidator validator;
 
-    public ValidatorProcessor(String specPath) {
+    public SwaggerRequestValidator(String specPath) {
         validator = OpenApiInteractionValidator
                 .createFor(specPath)
                 .build();
@@ -35,17 +38,27 @@ public class ValidatorProcessor extends AsyncProcessorSupport {
             ValidationReport report = validator.validateRequest(fromExchange(exchange));
             if (report.hasErrors()) {
                 LOGGER.debug(report.toString());
-                exchange.setException(new IllegalArgumentException(SimpleValidationReportFormat.getInstance().apply(report)));
+                exchange.setException(new BadRequestException(fromReport(report)));
             }
 
             LOGGER.debug("Validating complete");
         } catch (Exception ex) {
-            exchange.setException(ex);
+            exchange.setException(new CamelException(ex));
         } finally {
             callback.done(true);
         }
 
         return true;
+    }
+
+    private static OperationResult fromReport(ValidationReport report) {
+        List<OperationResult.Message> answer = new ArrayList<>(1);
+
+        // separates the report into a "Validation failed." line for details and the rest for diagnostics
+        String[] result = SimpleValidationReportFormat.getInstance().apply(report).split(System.lineSeparator(), 2);
+        answer.add(new OperationResult.Message(OperationResult.Level.ERROR, null, result[0], result[1]));
+
+        return new OperationResult(answer);
     }
 
     private static Request fromExchange(Exchange exchange) {
