@@ -50,8 +50,8 @@
     </developers>
 
     <scm>
-        <connection>scm:git:https://github.com/MS3Inc/camel-extensions.git</connection>
-        <developerConnection>scm:git:git@github.com:MS3Inc/camel-extensions.git</developerConnection>
+        <connection>scm:git:https://github.com/MS3Inc/camel-rest-extensions.git</connection>
+        <developerConnection>scm:git:https://github.com/MS3Inc/camel-rest-extensions.git</developerConnection>
         <url>https://github.com/MS3Inc/camel-extensions</url>
     </scm>
 
@@ -177,9 +177,9 @@
                 <artifactId>maven-release-plugin</artifactId>
                 <version>3.0.0-M1</version>
                 <configuration>
-                    <!-- avoid checkout/rebuild in release:perform -->
-                    <preparationGoals>clean deploy</preparationGoals>
-                    <arguments>-Prelease</arguments>
+                    <localCheckout>true</localCheckout>
+                    <releaseProfiles>release</releaseProfiles>
+                    <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
             </plugin>
         </plugins>
