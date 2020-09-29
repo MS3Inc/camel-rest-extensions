@@ -16,8 +16,10 @@ package com.ms3_inc.camel.extensions.rest;
  * limitations under the License.
  */
 
+import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.reifier.RouteReifier;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -30,6 +32,15 @@ import org.junit.jupiter.api.Test;
 class SwaggerRequestValidatorTest extends CamelTestSupport {
 	@Test
 	public void testValid() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
 		MockEndpoint mock = getMockEndpoint("mock:result");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -44,6 +55,15 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 
 	@Test
 	public void testInvalid() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -57,13 +77,61 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 	}
 
+	@Test
+	public void testWithBasePathValid() throws Exception {
+		context.getRestConfiguration().setContextPath("/api");
+
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml", "/api"))
+				;
+			}
+		});
+
+		MockEndpoint mock = getMockEndpoint("mock:result");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpUriRequest req = new HttpGet("http://localhost:9000/api/hello?bar-query=some");
+		req.addHeader("foo-header", "some");
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+	}
+
+	@Test
+	public void testWithBasePathInvalid() throws Exception {
+		context.getRestConfiguration().setContextPath("/api");
+
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml", "/api"))
+				;
+			}
+		});
+
+		MockEndpoint mock = getMockEndpoint("mock:error");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpPost req = new HttpPost("http://localhost:9000/api/greeting");
+		req.setHeader("content-type", "application/json");
+		req.setEntity(new StringEntity("{\"not-caller\":\"someone\"}"));
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+	}
+
 	@Override
 	protected RouteBuilder createRouteBuilder() throws Exception {
 		return new RouteBuilder() {
 			public void configure() throws Exception {
-				interceptFrom()
-					.process(new SwaggerRequestValidator("api.yaml"));
-
 				onException(Exception.class)
 					.to("mock:error");
 
