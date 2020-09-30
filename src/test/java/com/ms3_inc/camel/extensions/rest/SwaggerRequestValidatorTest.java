@@ -29,9 +29,12 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Test;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 class SwaggerRequestValidatorTest extends CamelTestSupport {
+	private final String badRequestException = "com.ms3_inc.camel.extensions.rest.exception.BadRequestException";
 	@Test
-	public void testValid() throws Exception {
+	public void testValidHello() throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
@@ -54,7 +57,7 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 	}
 
 	@Test
-	public void testInvalid() throws Exception {
+	public void testInvalidHelloHeader() throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
@@ -67,18 +70,45 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-		HttpPost req = new HttpPost("http://localhost:9000/greeting");
-		req.setHeader("content-type", "application/json");
-		req.setEntity(new StringEntity("{\"not-caller\":\"someone\"}"));
+		HttpUriRequest req = new HttpGet("http://localhost:9000/hello?bar-query=some");
 
 		httpClient.execute(req);
 
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
+
+		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
+		assertThat(exceptionCaught).isEqualTo(badRequestException);
 	}
 
 	@Test
-	public void testWithBasePathValid() throws Exception {
+	public void testInvalidHelloQuery() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
+		MockEndpoint mock = getMockEndpoint("mock:error");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpUriRequest req = new HttpGet("http://localhost:9000/hello");
+		req.addHeader("foo-header", "some");
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+
+		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
+		assertThat(exceptionCaught).isEqualTo(badRequestException);
+	}
+
+	@Test
+	public void testValidHelloWithBasePath() throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
@@ -103,10 +133,10 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 	}
 
 	@Test
-	public void testWithBasePathInvalid() throws Exception {
+	public void testInvalidHelloWithBasePath() throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
@@ -115,12 +145,95 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		MockEndpoint mock = getMockEndpoint("mock:result");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpUriRequest req = new HttpGet("http://localhost:9000/api/hello?bar-query=some");
+		req.addHeader("foo-header", "some");
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+	}
+
+	@Test
+	public void testInvalidGreetingJSON() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-		HttpPost req = new HttpPost("http://localhost:9000/api/greeting");
+		HttpPost req = new HttpPost("http://localhost:9000/greeting");
 		req.setHeader("content-type", "application/json");
 		req.setEntity(new StringEntity("{\"not-caller\":\"someone\"}"));
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+
+		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
+		assertThat(exceptionCaught).isEqualTo(badRequestException);
+	}
+
+	@Test
+	public void testInvalidGreetingXML() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
+		MockEndpoint mock = getMockEndpoint("mock:error");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpPost req = new HttpPost("http://localhost:9000/greeting");
+		req.setHeader("content-type", "application/xml");
+		req.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<greeting>\n" +
+				"\t<not-caller>someone</not-caller>\n" +
+				"</greeting>"));
+
+		httpClient.execute(req);
+
+		mock.expectedMessageCount(1);
+		mock.assertIsSatisfied();
+
+		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
+		assertThat(exceptionCaught).isEqualTo(badRequestException);
+	}
+
+	@Test
+	public void testValidGreetingXML() throws Exception {
+		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+			@Override
+			public void configure() throws Exception {
+				interceptFrom()
+						.process(new SwaggerRequestValidator("api.yaml"))
+				;
+			}
+		});
+
+		MockEndpoint mock = getMockEndpoint("mock:result");
+
+		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
+		HttpPost req = new HttpPost("http://localhost:9000/greeting");
+		req.setHeader("content-type", "application/xml");
+		req.setEntity(new StringEntity("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+				"<greeting>\n" +
+				"\t<caller>someone</caller>\n" +
+				"</greeting>"));
 
 		httpClient.execute(req);
 
@@ -133,6 +246,7 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		return new RouteBuilder() {
 			public void configure() throws Exception {
 				onException(Exception.class)
+					.log("${exchangeProperty.CamelExceptionCaught}")
 					.to("mock:error");
 
 				restConfiguration()

@@ -28,6 +28,8 @@ paths:
                     type: string
   /greeting:
     post:
+      security:
+        - bearerAuth: []
       requestBody:
         content:
           application/json:
@@ -38,6 +40,16 @@ paths:
               properties:
                 caller:
                   type: string
+          application/xml:
+            schema:
+              type: object
+              required:
+                - caller
+              properties:
+                caller:
+                  type: string
+              xml:
+                name: greeting
       responses:
         200:
           description: greeting response
@@ -48,3 +60,8 @@ paths:
                 properties:
                   greetings:
                     type: string
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
