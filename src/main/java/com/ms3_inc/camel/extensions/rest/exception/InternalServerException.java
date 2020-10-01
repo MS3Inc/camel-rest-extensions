@@ -17,28 +17,20 @@ package com.ms3_inc.camel.extensions.rest.exception;
  */
 
 import com.ms3_inc.camel.extensions.rest.OperationResult;
-import org.apache.camel.CamelException;
 
 import java.util.Optional;
 
-public abstract class RestException extends CamelException {
-	private final OperationResult.Message message;
-
-	public RestException(OperationResult.Message message) {
-		super(message.toString());
-		this.message = message;
+public class InternalServerException extends RestException {
+	public InternalServerException(OperationResult.Message message) {
+		super(message);
 	}
 
-	public RestException(OperationResult.Message message, Throwable cause) {
-		super(message.toString(), cause);
-		this.message = message;
+	public InternalServerException(Throwable cause, OperationResult.Message message) {
+		super(message, cause);
 	}
 
-	public OperationResult.Message getOperationResultMessage() {
-		return message;
-	}
-
+	@Override
 	public Optional<Integer> httpStatusCode() {
-		return Optional.empty();
+		return Optional.of(500);
 	}
 }

@@ -18,20 +18,19 @@ package com.ms3_inc.camel.extensions.rest.exception;
 
 import com.ms3_inc.camel.extensions.rest.OperationResult;
 
+import java.util.Optional;
+
 public class BadRequestException extends RestException {
-	public BadRequestException(OperationResult result) {
-		super(result);
+	public BadRequestException(OperationResult.Message message) {
+		super(message);
 	}
 
-	public BadRequestException(String message, OperationResult result) {
-		super(message, result);
+	public BadRequestException(Throwable cause, OperationResult.Message message) {
+		super(message, cause);
 	}
 
-	public BadRequestException(String message, Throwable cause, OperationResult result) {
-		super(message, cause, result);
-	}
-
-	public BadRequestException(Throwable cause, OperationResult result) {
-		super(cause, result);
+	@Override
+	public Optional<Integer> httpStatusCode() {
+		return Optional.of(400);
 	}
 }

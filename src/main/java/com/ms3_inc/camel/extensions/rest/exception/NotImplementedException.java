@@ -18,20 +18,19 @@ package com.ms3_inc.camel.extensions.rest.exception;
 
 import com.ms3_inc.camel.extensions.rest.OperationResult;
 
+import java.util.Optional;
+
 public class NotImplementedException extends RestException {
-	public NotImplementedException(OperationResult result) {
-		super(result);
+	public NotImplementedException(OperationResult.Message message) {
+		super(message);
 	}
 
-	public NotImplementedException(String message, OperationResult result) {
-		super(message, result);
+	public NotImplementedException(Throwable cause, OperationResult.Message message) {
+		super(message, cause);
 	}
 
-	public NotImplementedException(String message, Throwable cause, OperationResult result) {
-		super(message, cause, result);
-	}
-
-	public NotImplementedException(Throwable cause, OperationResult result) {
-		super(cause, result);
+	@Override
+	public Optional<Integer> httpStatusCode() {
+		return Optional.of(501);
 	}
 }

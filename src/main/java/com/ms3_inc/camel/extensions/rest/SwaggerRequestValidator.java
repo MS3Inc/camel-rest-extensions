@@ -21,6 +21,7 @@ import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.report.SimpleValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
+import com.ms3_inc.camel.extensions.rest.OperationResult.MessageBuilder;
 import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelException;
@@ -32,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -67,14 +67,14 @@ public class SwaggerRequestValidator extends AsyncProcessorSupport {
         return true;
     }
 
-    private static OperationResult fromReport(ValidationReport report) {
-        List<OperationResult.Message> answer = new ArrayList<>(1);
-
-        // separates the report into a "Validation failed." line for details and the rest for diagnostics
+    private static OperationResult.Message fromReport(ValidationReport report) {
+        // separates the report into a "Validation failed." line and the rest for diagnostics
         String[] result = SimpleValidationReportFormat.getInstance().apply(report).split(System.lineSeparator(), 2);
-        answer.add(new OperationResult.Message(OperationResult.Level.ERROR, null, result[0], result[1]));
+        OperationResult.Message message = MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
+            .withDiagnostics(result[1])
+            .build();
 
-        return new OperationResult(answer);
+        return message;
     }
 
     private static Request fromExchange(Exchange exchange) {

@@ -18,20 +18,19 @@ package com.ms3_inc.camel.extensions.rest.exception;
 
 import com.ms3_inc.camel.extensions.rest.OperationResult;
 
+import java.util.Optional;
+
 public class PreconditionFailedException extends RestException {
-	public PreconditionFailedException(OperationResult result) {
-		super(result);
+	public PreconditionFailedException(OperationResult.Message message) {
+		super(message);
 	}
 
-	public PreconditionFailedException(String message, OperationResult result) {
-		super(message, result);
+	public PreconditionFailedException(Throwable cause, OperationResult.Message message) {
+		super(message, cause);
 	}
 
-	public PreconditionFailedException(String message, Throwable cause, OperationResult result) {
-		super(message, cause, result);
-	}
-
-	public PreconditionFailedException(Throwable cause, OperationResult result) {
-		super(cause, result);
+	@Override
+	public Optional<Integer> httpStatusCode() {
+		return Optional.of(412);
 	}
 }
