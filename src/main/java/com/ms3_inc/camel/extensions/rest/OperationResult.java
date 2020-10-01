@@ -16,46 +16,110 @@ package com.ms3_inc.camel.extensions.rest;
  * limitations under the License.
  */
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class OperationResult {
-	private final List<Message> messages;
+	public static final String EXCHANGE_OPERATION_RESULT = "CamelxRestOperationResult";
+
+	private final List<Message> messages = new ArrayList<>(4);
+
+	public OperationResult() {
+	}
 
 	public OperationResult(List<Message> messages) {
-		this.messages = messages;
+		this.messages.addAll(messages);
 	}
 
 	public OperationResult(Message... messages) {
-		this.messages = Arrays.asList(messages);
-	}
-
-	public List<Message> getMessages() {
-		return messages;
-	}
-
-	public void addMessages(Message... messages) {
 		this.messages.addAll(Arrays.asList(messages));
 	}
 
+	public List<Message> getMessages() {
+		return Collections.unmodifiableList(messages);
+	}
+
+	public OperationResult addMessage(Message... messages) {
+		return new OperationResult(Arrays.asList(messages));
+	}
+
+	public OperationResult mergedWith(OperationResult result) {
+		return new OperationResult(result.messages);
+	}
+
 	public enum Level {
-		FATAL,
-		ERROR,
+		INFO,
 		WARN,
-		INFO
+		ERROR
 	}
 
 	public static class Message {
 		public final Level level;
+		public final String type;
 		public final String code;
 		public final String details;
 		public final String diagnostics;
 
-		public Message(Level level, String code, String details, String diagnostics) {
+		public Message(Level level, String type, String code, String details, String diagnostics) {
+			this.level = level;
+			this.type = type;
+			this.code = code;
 			this.details = details;
 			this.diagnostics = diagnostics;
-			this.code = code;
+		}
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder(type)
+					.append(": ").append(details).append("\n");
+			if (code != null){
+				sb.append(" code:").append(code);
+			}
+			if (diagnostics != null) {
+				sb.append(" diagnostics:").append(diagnostics.replace("\n", "\n \t"));
+			}
+
+			return sb.toString();
+		}
+	}
+
+	public static class MessageBuilder {
+		private final Level level;
+		private final String type;
+		private final String details;
+		private String code = null;
+		private String diagnostics = null;
+
+		private MessageBuilder(Level level, String type, String details) {
 			this.level = level;
+			this.type = type;
+			this.details = details;
+		}
+
+		public static MessageBuilder info(String type, String details) {
+			return new MessageBuilder(Level.INFO, type, details);
+		}
+		public static MessageBuilder warn(String type, String details) {
+			return new MessageBuilder(Level.WARN, type, details);
+		}
+		public static MessageBuilder error(String type, String details) {
+			return new MessageBuilder(Level.ERROR, type, details);
+		}
+
+		public MessageBuilder withCode(String code) {
+			this.code = code;
+			return this;
+		}
+
+		public MessageBuilder withDiagnostics(String diagnostics) {
+			this.diagnostics = diagnostics;
+			return this;
+		}
+
+		public Message build() {
+			return new Message(level, type, code, details, diagnostics);
 		}
 	}
 }

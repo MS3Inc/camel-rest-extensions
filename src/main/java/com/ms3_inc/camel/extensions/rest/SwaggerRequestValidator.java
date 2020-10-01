@@ -16,76 +16,42 @@ package com.ms3_inc.camel.extensions.rest;
  * limitations under the License.
  */
 
-
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
+import com.atlassian.oai.validator.OpenApiInteractionValidator;
+import com.atlassian.oai.validator.model.Request;
+import com.atlassian.oai.validator.model.SimpleRequest;
+import com.atlassian.oai.validator.report.SimpleValidationReportFormat;
+import com.atlassian.oai.validator.report.ValidationReport;
+import com.ms3_inc.camel.extensions.rest.OperationResult.MessageBuilder;
 import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
 import org.apache.camel.AsyncCallback;
+import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;
 import org.apache.camel.support.AsyncProcessorSupport;
 import org.apache.camel.support.MessageHelper;
-import org.openapi4j.core.exception.ResolutionException;
-import org.openapi4j.core.validation.ValidationException;
-import org.openapi4j.core.validation.ValidationResults;
-import org.openapi4j.operation.validator.model.Request;
-import org.openapi4j.operation.validator.model.impl.Body;
-import org.openapi4j.operation.validator.model.impl.DefaultRequest;
-import org.openapi4j.operation.validator.validation.RequestValidator;
-import org.openapi4j.parser.OpenApi3Parser;
-import org.openapi4j.parser.model.v3.OpenApi3;
-import org.openapi4j.parser.model.v3.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.util.UriComponentsBuilder;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 public class SwaggerRequestValidator extends AsyncProcessorSupport {
-    private final Logger LOGGER = LoggerFactory.getLogger(SwaggerRequestValidator.class);
-    private final RequestValidator openapi4jValidator;
-    private OpenApi3 api;
+    private final Logger LOGGER = LoggerFactory.getLogger(getClass());
+    private final OpenApiInteractionValidator validator;
 
     public SwaggerRequestValidator(String specPath) {
-        api = null;
-
-        try {
-            api = new OpenApi3Parser()
-                    .parse(new ClassPathResource(specPath).getFile(), false);
-        } catch (ResolutionException re) {
-            LOGGER.error(re.getMessage());
-        } catch (ValidationException ve) {
-            LOGGER.error(ve.getMessage());
-        } catch (IOException ioe) {
-            LOGGER.error(ioe.getMessage());
-        }
-
-        openapi4jValidator = new RequestValidator(api);
+        validator = OpenApiInteractionValidator
+                .createFor(specPath)
+                .build();
     }
 
     public SwaggerRequestValidator(String specPath, String basePath) {
-        api = null;
-
-        try {
-            api = new OpenApi3Parser()
-                    .parse(new ClassPathResource(specPath).getFile(), false);
-        } catch (ResolutionException re) {
-            LOGGER.error(re.getMessage());
-        } catch (ValidationException ve) {
-            LOGGER.error(ve.getMessage());
-        } catch (IOException ioe) {
-            LOGGER.error(ioe.getMessage());
-        }
-
-        api.setServers(new ArrayList<Server>(){
-            {
-                add(0, new Server().setUrl(basePath));
-            }
-        });
-
-        openapi4jValidator = new RequestValidator(api);
+        validator = OpenApiInteractionValidator
+                .createFor(specPath)
+                .withBasePathOverride(basePath)
+                .build();
     }
 
     @Override
@@ -93,66 +59,56 @@ public class SwaggerRequestValidator extends AsyncProcessorSupport {
         LOGGER.debug("Trying validation");
 
         try {
-            openapi4jValidator.validate(fromExchange(exchange));
-        } catch (ValidationException e) {
-            ValidationResults results = e.results();
-            LOGGER.debug(e.results().toString());
-            exchange.setException(new BadRequestException(fromReport(results)));
-        } finally {
+            ValidationReport report = validator.validateRequest(fromExchange(exchange));
+            if (report.hasErrors()) {
+                LOGGER.debug(report.toString());
+                exchange.setException(new BadRequestException(fromReport(report)));
+            }
+
             LOGGER.debug("Validating complete");
+        } catch (Exception ex) {
+            exchange.setException(new CamelException(ex));
+        } finally {
             callback.done(true);
         }
 
         return true;
     }
 
-    private static OperationResult fromReport(ValidationResults results) {
-        List<OperationResult.Message> answer = new ArrayList<>(1);
-        StringBuilder resultItems = new StringBuilder();
+    private static OperationResult.Message fromReport(ValidationReport report) {
+        // separates the report into a "Validation failed." line and the rest for diagnostics
+        String[] result = SimpleValidationReportFormat.getInstance().apply(report).split(System.lineSeparator(), 2);
+        OperationResult.Message message = MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
+            .withDiagnostics(result[1])
+            .build();
 
-        // separates the results into a "Validation failed." line for details and the rest for diagnostics
-        for (ValidationResults.ValidationItem result : results.items()) {
-            resultItems.append(result.message() + "\n");
-        }
-        answer.add(new OperationResult.Message(OperationResult.Level.ERROR, null, "Validation failed.", resultItems.toString()));
-
-        return new OperationResult(answer);
+        return message;
     }
 
     private static Request fromExchange(Exchange exchange) {
-        final Logger LOGGER = LoggerFactory.getLogger(SwaggerRequestValidator.class);
-
         final Request.Method method = Request.Method.valueOf(exchange.getMessage().getHeader(Exchange.HTTP_METHOD, String.class));
         final String path = exchange.getMessage().getHeader(Exchange.HTTP_URI, String.class);
         final String query = exchange.getMessage().getHeader(Exchange.HTTP_QUERY, String.class);
         final String body = MessageHelper.extractBodyAsString(exchange.getMessage());
-        final String contentType = exchange.getMessage().getHeader(Exchange.CONTENT_TYPE, String.class);
-        final DefaultRequest.Builder requestBuilder = new DefaultRequest.Builder(path, method);
+        final SimpleRequest.Builder requestBuilder = new SimpleRequest.Builder(method, path);
 
         if (!body.isEmpty()) {
-            if (contentType.equals("application/xml")) {
-                XmlMapper xmlMapper = new XmlMapper();
-
-                JsonNode node = xmlMapper.createObjectNode();
-
-                try {
-                    node = xmlMapper.readTree(body.getBytes());
-                } catch (IOException ioe) {
-                    LOGGER.error(ioe.getMessage());
-                }
-                requestBuilder.body(Body.from(node));
-            } else if (contentType.equals("application/json")) {
-                requestBuilder.body(Body.from(body));
-            }
+            requestBuilder.withBody(body);
         }
 
         for (Map.Entry<String, Object> header : exchange.getMessage().getHeaders().entrySet()) {
             if (!header.getKey().startsWith("Camel") && header.getValue() instanceof String) {
-                requestBuilder.header(header.getKey(), (String) header.getValue());
+                requestBuilder.withHeader(header.getKey(), (String) header.getValue());
             }
         }
 
-        requestBuilder.query(query);
+        MultiValueMap<String, String> queryParams = UriComponentsBuilder.newInstance()
+                .query(query)
+                .build()
+                .getQueryParams();
+        for (Map.Entry<String, List<String>> queryParamEntry : queryParams.entrySet()) {
+            requestBuilder.withQueryParam(queryParamEntry.getKey(), queryParamEntry.getValue());
+        }
 
         return requestBuilder.build();
     }

@@ -90,7 +90,13 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- used for json and xml validation -->
+        <dependency>
+            <groupId>com.atlassian.oai</groupId>
+            <artifactId>swagger-request-validator-core</artifactId>
+            <version>2.11.0</version>
+        </dependency>
+
+        <!-- used for OpenApi4jValidator -->
         <dependency>
             <groupId>org.openapi4j</groupId>
             <artifactId>openapi-operation-validator</artifactId>
@@ -100,26 +106,32 @@
             <groupId>org.openapi4j</groupId>
             <artifactId>openapi-parser</artifactId>
             <version>1.0.4</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.dataformat</groupId>
+                    <artifactId>jackson-dataformat-yaml</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>org.openapi4j</groupId>
             <artifactId>openapi-operation-servlet</artifactId>
             <version>1.0.4</version>
         </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.fasterxml.jackson.core</groupId>-->
+<!--            <artifactId>jackson-databind</artifactId>-->
+<!--            <version>2.11.2</version>-->
+<!--        </dependency>-->
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-xml</artifactId>
             <version>2.11.2</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-xml</artifactId>
-            <version>2.9.7</version>
-        </dependency>
-        <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20200518</version>
+            <artifactId>jackson-dataformat-yaml</artifactId>
+            <version>2.11.2</version>
         </dependency>
 
         <!-- used for query params parsing -->
@@ -170,6 +182,7 @@
             <groupId>org.apache.httpcomponents</groupId>
             <artifactId>httpclient</artifactId>
             <version>4.5.12</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

@@ -28,19 +28,32 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class SwaggerRequestValidatorTest extends CamelTestSupport {
+class ValidatorTest extends CamelTestSupport {
 	private final String badRequestException = "com.ms3_inc.camel.extensions.rest.exception.BadRequestException";
-	@Test
-	public void testValidHello() throws Exception {
+
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testValidHello(String input) throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml"))
+					;
+				}
+
 			}
 		});
 
@@ -56,14 +69,21 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 	}
 
-	@Test
-	public void testInvalidHelloHeader() throws Exception {
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testInvalidHelloHeader(String input) throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml"))
+					;
+				}
 			}
 		});
 
@@ -81,14 +101,21 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		assertThat(exceptionCaught).isEqualTo(badRequestException);
 	}
 
-	@Test
-	public void testInvalidHelloQuery() throws Exception {
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testInvalidHelloQuery(String input) throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml"))
+					;
+				}
 			}
 		});
 
@@ -107,16 +134,23 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		assertThat(exceptionCaught).isEqualTo(badRequestException);
 	}
 
-	@Test
-	public void testValidHelloWithBasePath() throws Exception {
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testValidHelloWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml", "/api"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml", "/api"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml", "/api"))
+					;
+				}
 			}
 		});
 
@@ -132,16 +166,23 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 	}
 
-	@Test
-	public void testInvalidHelloWithBasePath() throws Exception {
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testInvalidHelloWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml", "/api"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml", "/api"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml", "/api"))
+					;
+				}
 			}
 		});
 
@@ -157,14 +198,21 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 	}
 
-	@Test
-	public void testInvalidGreetingJSON() throws Exception {
+	@ParameterizedTest(name = "#{index} - Test with: {0}")
+	@MethodSource("validatorProvider")
+	public void testInvalidGreetingJSON(String input) throws Exception {
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
-				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
-				;
+				if (input.equals("openapi4j")) {
+					interceptFrom()
+							.process(new OpenApi4jValidator("api.yaml"))
+					;
+				} else {
+					interceptFrom()
+							.process(new SwaggerRequestValidator("api.yaml"))
+					;
+				}
 			}
 		});
 
@@ -190,7 +238,7 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
+						.process(new OpenApi4jValidator("api.yaml"))
 				;
 			}
 		});
@@ -220,7 +268,7 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
-						.process(new SwaggerRequestValidator("api.yaml"))
+						.process(new OpenApi4jValidator("api.yaml"))
 				;
 			}
 		});
@@ -239,6 +287,10 @@ class SwaggerRequestValidatorTest extends CamelTestSupport {
 
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
+	}
+
+	static Stream<String> validatorProvider() {
+		return Stream.of("openapi4j", "swagger");
 	}
 
 	@Override
