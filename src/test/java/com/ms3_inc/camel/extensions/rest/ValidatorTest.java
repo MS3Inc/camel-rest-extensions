@@ -36,7 +36,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ValidatorTest extends CamelTestSupport {
-	private final String badRequestException = "com.ms3_inc.camel.extensions.rest.exception.BadRequestException";
 
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
@@ -98,7 +97,7 @@ class ValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 
 		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
-		assertThat(exceptionCaught).isEqualTo(badRequestException);
+		assertThat(exceptionCaught).contains("BadRequestException");
 	}
 
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
@@ -131,12 +130,13 @@ class ValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 
 		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
-		assertThat(exceptionCaught).isEqualTo(badRequestException);
+		assertThat(exceptionCaught).contains("BadRequestException");
 	}
+
 
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
-	public void testValidHelloWithBasePath(String input) throws Exception {
+	public void testInvalidHelloHeaderWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
 		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
@@ -154,16 +154,18 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
+		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
 		HttpUriRequest req = new HttpGet("http://localhost:9000/api/hello?bar-query=some");
-		req.addHeader("foo-header", "some");
 
 		httpClient.execute(req);
 
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
+
+		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
+		assertThat(exceptionCaught).contains("BadRequestException");
 	}
 
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
@@ -186,10 +188,10 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
-		MockEndpoint mock = getMockEndpoint("mock:result");
+		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
-		HttpUriRequest req = new HttpGet("http://localhost:9000/api/hello?bar-query=some");
+		HttpUriRequest req = new HttpGet("http://localhost:9000/api/hello");
 		req.addHeader("foo-header", "some");
 
 		httpClient.execute(req);
@@ -229,7 +231,7 @@ class ValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 
 		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
-		assertThat(exceptionCaught).isEqualTo(badRequestException);
+		assertThat(exceptionCaught).contains("BadRequestException");
 	}
 
 	@Test
@@ -259,7 +261,7 @@ class ValidatorTest extends CamelTestSupport {
 		mock.assertIsSatisfied();
 
 		String exceptionCaught = mock.getExchanges().get(0).getProperty("CamelExceptionCaught").toString();
-		assertThat(exceptionCaught).isEqualTo(badRequestException);
+		assertThat(exceptionCaught).contains("BadRequestException");
 	}
 
 	@Test

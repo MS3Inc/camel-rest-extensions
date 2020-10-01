@@ -17,6 +17,8 @@ package com.ms3_inc.camel.extensions.rest;
  */
 
 
+import com.atlassian.oai.validator.report.SimpleValidationReportFormat;
+import com.atlassian.oai.validator.report.ValidationReport;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
@@ -40,7 +42,6 @@ import org.springframework.core.io.ClassPathResource;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 public class OpenApi4jValidator extends AsyncProcessorSupport {
@@ -90,17 +91,19 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
         return true;
     }
 
-    private static OperationResult fromReport(ValidationResults results) {
-        List<OperationResult.Message> answer = new ArrayList<>(1);
+    private static OperationResult.Message fromReport(ValidationResults report) {
         StringBuilder resultItems = new StringBuilder();
 
         // separates the results into a "Validation failed." line for details and the rest for diagnostics
-        for (ValidationResults.ValidationItem result : results.items()) {
+        for (ValidationResults.ValidationItem result : report.items()) {
             resultItems.append(result.message() + "\n");
         }
-        answer.add(new OperationResult.Message(OperationResult.Level.ERROR, null, "Validation failed.", resultItems.toString()));
 
-        return new OperationResult(answer);
+        OperationResult.Message message = OperationResult.MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
+                .withDiagnostics(resultItems.toString())
+                .build();
+
+        return message;
     }
 
     private static Request fromExchange(Exchange exchange) {
