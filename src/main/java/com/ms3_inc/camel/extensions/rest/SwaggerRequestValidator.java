@@ -46,6 +46,13 @@ public class SwaggerRequestValidator extends AsyncProcessorSupport {
                 .build();
     }
 
+    public SwaggerRequestValidator(String specPath, String basePath) {
+        validator = OpenApiInteractionValidator
+                .createFor(specPath)
+                .withBasePathOverride(basePath)
+                .build();
+    }
+
     @Override
     public boolean process(Exchange exchange, AsyncCallback callback) {
         LOGGER.debug("Trying validation");
