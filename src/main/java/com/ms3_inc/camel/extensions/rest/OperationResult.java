@@ -22,10 +22,10 @@ import java.util.Collections;
 import java.util.List;
 
 /***
- * The OperationResult class contains a {@link Message} class and a {@link MessageBuilder}
- * class. The MessageBuilder class uses the builder pattern to build the error information.
+ * The {@code OperationResult} class contains a {@link Message} class and a {@link MessageBuilder}
+ * class. The {@code MessageBuilder} class uses the builder pattern to build the error information.
  * <p>
- * The message object is used by the REST exceptions.
+ * The {@code Message} instance is used by the REST exceptions.
  */
 public class OperationResult {
 	public static final String EXCHANGE_OPERATION_RESULT = "CamelxRestOperationResult";
@@ -39,47 +39,47 @@ public class OperationResult {
 	}
 
 	/***
-	 * Constructs an operation result with Messages wrapped in a {@link List}.
+	 * Constructs an operation result with {@code Message}s wrapped in a {@code List}.
 	 *
-	 * @param messages the messages wrapped in a List
+	 * @param messages the {@code Message}s wrapped in a {@code List}
 	 */
 	public OperationResult(List<Message> messages) {
 		this.messages.addAll(messages);
 	}
 
 	/***
-	 * Constructs an operation result with any number of Messages wrapped in a {@link List}.
+	 * Constructs an operation result with any number of {@code Message}s.
 	 *
-	 * @param messages the messages wrapped in a List
+	 * @param messages the {@code Message}s as varargs
 	 */
 	public OperationResult(Message... messages) {
 		this.messages.addAll(Arrays.asList(messages));
 	}
 
 	/***
-	 * Getter that returns the messages.
+	 * Getter that returns the {@code Message}s.
 	 *
-	 * @return Messages wrapped in a {@link List}
+	 * @return {@code Message}s wrapped in a {@code List}
 	 */
 	public List<Message> getMessages() {
 		return Collections.unmodifiableList(messages);
 	}
 
 	/***
-	 * Adds a message to the OperationResult.
+	 * Adds a {@code Message} to the {@code OperationResult}.
 	 *
-	 * @param messages Messages wrapped in a {@link List}
-	 * @return the OperationResult instance
+	 * @param messages {@code Message}s as varargs
+	 * @return the {@code OperationResult} instance
 	 */
 	public OperationResult addMessage(Message... messages) {
 		return new OperationResult(Arrays.asList(messages));
 	}
 
 	/***
-	 * Merge messages of OperationResult into an OperationResult instance.
+	 * Merge {@code Message}s of {@code OperationResult} into an {@code OperationResult} instance.
 	 *
-	 * @param result the OperationResult to merge with
-	 * @return the OperationResult instance
+	 * @param result the {@code OperationResult} to merge with
+	 * @return the {@code OperationResult} instance
 	 */
 	public OperationResult mergedWith(OperationResult result) {
 		return new OperationResult(result.messages);
@@ -104,7 +104,7 @@ public class OperationResult {
 	}
 
 	/***
-	 * This class specifies the values of a message, the level, the type,
+	 * This class specifies the values of a {@code Message}, the level, the type,
 	 * the code, the details, and the diagnostics.
 	 */
 	public static class Message {
@@ -115,7 +115,7 @@ public class OperationResult {
 		public final String diagnostics;
 
 		/***
-		 * Constructs the error message with the specified parameters.
+		 * Constructs the error {@code Message} with the specified parameters.
 		 *
 		 * @param level 		{@link Level}
 		 * @param type 			the type
@@ -171,43 +171,43 @@ public class OperationResult {
 		}
 
 		/***
-		 * Uses the MessageBuilder constructor to build a message with INFO level.
+		 * Uses the {@code MessageBuilder} constructor to construct a {@code MessageBuilder} with INFO level.
 		 *
 		 * @param type		type of message
 		 * @param details	details of error
-		 * @return  the created instance MessageBuilder
+		 * @return  the created instance {@code MessageBuilder}
 		 */
 		public static MessageBuilder info(String type, String details) {
 			return new MessageBuilder(Level.INFO, type, details);
 		}
 
 		/***
-		 * Uses the MessageBuilder constructor to build a message with a WARN level.
+		 * Uses the {@code MessageBuilder} constructor to construct a {@code MessageBuilder} with a WARN level.
 		 *
 		 * @param type		type of message
 		 * @param details	details of error
-		 * @return  		the created instance MessageBuilder
+		 * @return  		the created instance {@code MessageBuilder}
 		 */
 		public static MessageBuilder warn(String type, String details) {
 			return new MessageBuilder(Level.WARN, type, details);
 		}
 
 		/***
-		 * Uses the MessageBuilder constructor to build a message with an ERROR level.
+		 * Uses the {@code MessageBuilder} constructor to construct a {@code MessageBuilder} with an ERROR level.
 		 *
 		 * @param type		type of message
 		 * @param details	details of error
-		 * @return  		the created MessageBuilder instance
+		 * @return  		the created {@code MessageBuilder} instance
 		 */
 		public static MessageBuilder error(String type, String details) {
 			return new MessageBuilder(Level.ERROR, type, details);
 		}
 
 		/***
-		 * Adds the code to the message.
+		 * Adds the code to the instance.
 		 *
 		 * @param code the error code
-		 * @return this MessageBuilder instance
+		 * @return this {@code MessageBuilder} instance
 		 */
 		public MessageBuilder withCode(String code) {
 			this.code = code;
@@ -215,10 +215,10 @@ public class OperationResult {
 		}
 
 		/***
-		 * Adds the information used for diagnosing the error to the message.
+		 * Adds the information used for diagnosing the error to the instance.
 		 *
 		 * @param diagnostics the details used for diagnosing of the error
-		 * @return this MessageBuilder instance
+		 * @return this {@code MessageBuilder} instance
 		 */
 		public MessageBuilder withDiagnostics(String diagnostics) {
 			this.diagnostics = diagnostics;
@@ -226,9 +226,9 @@ public class OperationResult {
 		}
 
 		/***
-		 * Build the message instance with the collected values.
+		 * Build the {@code Message} instance with the collected values.
 		 *
-		 * @return the created Message instance
+		 * @return the created {@code Message} instance
 		 */
 		public Message build() {
 			return new Message(level, type, code, details, diagnostics);

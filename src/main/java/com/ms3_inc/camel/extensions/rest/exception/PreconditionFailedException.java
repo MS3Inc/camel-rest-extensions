@@ -21,25 +21,13 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 import java.util.Optional;
 
 /***
- * The class is an exception with a 412 status code,
- * thrown when the precondition headers are not met.
+ * This class is an exception thrown when the headers conditions are false when checked on the server.
  */
 public class PreconditionFailedException extends RestException {
-	/***
-	 * Constructs a new precondition failed exception with the specified message.
-	 *
-	 * @param message the error message
-	 */
 	public PreconditionFailedException(OperationResult.Message message) {
 		super(message);
 	}
 
-	/***
-	 * Constructs a new precondition failed exception with the specified message and the cause.
-	 *
-	 * @param message 	the error message
-	 * @param cause 	the exception that caused the exception
-	 */
 	public PreconditionFailedException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}

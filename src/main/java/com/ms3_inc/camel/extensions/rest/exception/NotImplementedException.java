@@ -21,25 +21,12 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 import java.util.Optional;
 
 /***
- * The class is an exception with a 501 status code,
- * thrown when the endpoint has not been implemented yet.
+ * This class is an exception thrown when the functionality
+ * is not supported by the server.
  */
 public class NotImplementedException extends RestException {
-	/***
-	 * Constructs a new not implemented exception with the specified message.
-	 *
-	 * @param message the error message
-	 */
-	public NotImplementedException(OperationResult.Message message) {
-		super(message);
-	}
+	public NotImplementedException(OperationResult.Message message) { super(message); }
 
-	/***
-	 * Constructs a new not implemented exception with the specified message and the cause.
-	 *
-	 * @param message 	the error message
-	 * @param cause 	the exception that caused the exception
-	 */
 	public NotImplementedException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}

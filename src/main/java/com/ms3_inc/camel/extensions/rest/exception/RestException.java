@@ -22,36 +22,26 @@ import org.apache.camel.CamelException;
 import java.util.Optional;
 
 /***
- * Base class for all checked REST exceptions
+ * Base class for all checked REST exceptions.
+ * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.1">RFC Overview of Status Codes</a>
  */
 public abstract class RestException extends CamelException {
 	private final OperationResult.Message message;
 
-	/***
-	 * Constructs a new REST exception with the specified message.
-	 *
-	 * @param message the error message
-	 */
 	public RestException(OperationResult.Message message) {
 		super(message.toString());
 		this.message = message;
 	}
 
-	/***
-	 * Constructs a new REST exception with the specified message and the cause.
-	 *
-	 * @param message 	the error message
-	 * @param cause 	the exception that caused the exception
-	 */
 	public RestException(OperationResult.Message message, Throwable cause) {
 		super(message.toString(), cause);
 		this.message = message;
 	}
 
 	/***
-	 * Getter for the message.
+	 * Getter for the {@code OperationResult.Message}.
 	 *
-	 * @return the {@link OperationResult.Message}
+	 * @return the {@code OperationResult.Message}
 	 */
 	public OperationResult.Message getOperationResultMessage() {
 		return message;

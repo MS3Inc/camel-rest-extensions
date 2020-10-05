@@ -21,25 +21,14 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 import java.util.Optional;
 
 /***
- * The class is an exception with a 400 status code,
- * thrown when there is an error on the client side.
+ * This class is an exception thrown when the server can't or won't
+ * process the request due to a client side error.
  */
 public class BadRequestException extends RestException {
-	/***
-	 * Constructs a new bad request exception with the specified message.
-	 *
-	 * @param message the error message
-	 */
 	public BadRequestException(OperationResult.Message message) {
 		super(message);
 	}
 
-	/***
-	 * Constructs a new bad request exception with the specified message and the cause.
-	 *
-	 * @param message 	the error message
-	 * @param cause 	the exception that caused the exception
-	 */
 	public BadRequestException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
