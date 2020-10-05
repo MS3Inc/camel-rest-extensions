@@ -21,23 +21,47 @@ import org.apache.camel.CamelException;
 
 import java.util.Optional;
 
+/***
+ * Base class for all checked REST exceptions
+ */
 public abstract class RestException extends CamelException {
 	private final OperationResult.Message message;
 
+	/***
+	 * Constructs a new REST exception with the specified message.
+	 *
+	 * @param message the error message
+	 */
 	public RestException(OperationResult.Message message) {
 		super(message.toString());
 		this.message = message;
 	}
 
+	/***
+	 * Constructs a new REST exception with the specified message and the cause.
+	 *
+	 * @param message 	the error message
+	 * @param cause 	the exception that caused the exception
+	 */
 	public RestException(OperationResult.Message message, Throwable cause) {
 		super(message.toString(), cause);
 		this.message = message;
 	}
 
+	/***
+	 * Getter for the message.
+	 *
+	 * @return the {@link OperationResult.Message}
+	 */
 	public OperationResult.Message getOperationResultMessage() {
 		return message;
 	}
 
+	/***
+	 * The status code of the exception.
+	 *
+	 * @return the status code wrapped in an {@link Optional}
+	 */
 	public Optional<Integer> httpStatusCode() {
 		return Optional.empty();
 	}

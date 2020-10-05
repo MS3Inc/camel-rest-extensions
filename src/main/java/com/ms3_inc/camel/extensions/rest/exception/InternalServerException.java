@@ -20,15 +20,33 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * The class is an exception with a 500 status code,
+ * thrown when there is an error on the server side.
+ */
 public class InternalServerException extends RestException {
+	/***
+	 * Constructs a new internal server exception with the specified message.
+	 *
+	 * @param message the error message
+	 */
 	public InternalServerException(OperationResult.Message message) {
 		super(message);
 	}
 
+	/***
+	 * Constructs a new internal server exception with the specified message and the cause.
+	 *
+	 * @param message 	the error message
+	 * @param cause 	the exception that caused the exception
+	 */
 	public InternalServerException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 500 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(500);

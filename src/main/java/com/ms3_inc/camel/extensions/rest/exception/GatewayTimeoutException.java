@@ -20,15 +20,33 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * The class is an exception with a 504 status code,
+ * thrown when there is an error on the client side.
+ */
 public class GatewayTimeoutException extends RestException {
+	/***
+	 * Constructs a new gateway timeout exception with the specified message.
+	 *
+	 * @param message the error message
+	 */
 	public GatewayTimeoutException(OperationResult.Message message) {
 		super(message);
 	}
 
+	/***
+	 * Constructs a new gateway timeout exception with the specified message and the cause.
+	 *
+	 * @param message 	the error message
+	 * @param cause 	the exception that caused the exception
+	 */
 	public GatewayTimeoutException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 504 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(504);

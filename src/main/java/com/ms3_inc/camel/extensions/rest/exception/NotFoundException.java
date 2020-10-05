@@ -20,15 +20,33 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * The class is an exception with a 404 status code,
+ * thrown when the resource or resources are not found.
+ */
 public class NotFoundException extends RestException {
+	/***
+	 * Constructs a new not found exception with the specified message.
+	 *
+	 * @param message the error message
+	 */
 	public NotFoundException(OperationResult.Message message) {
 		super(message);
 	}
 
+	/***
+	 * Constructs a new not found exception with the specified message and the cause.
+	 *
+	 * @param message 	the error message
+	 * @param cause 	the exception that caused the exception
+	 */
 	public NotFoundException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 404 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(404);

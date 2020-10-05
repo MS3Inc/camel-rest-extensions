@@ -20,15 +20,34 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * The class is an exception with a 502 status code,
+ * thrown when the proxy server isn't
+ * able to get a valid response from the server.
+ */
 public class BadGatewayException extends RestException {
+	/***
+	 * Constructs a new bad gateway exception with the specified message.
+	 *
+	 * @param message the error message
+	 */
 	public BadGatewayException(OperationResult.Message message) {
 		super(message);
 	}
 
+	/***
+	 * Constructs a new bad gateway exception with the specified message and the cause.
+	 *
+	 * @param message 	the error message
+	 * @param cause 	the exception that caused the exception
+	 */
 	public BadGatewayException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 502 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(502);
