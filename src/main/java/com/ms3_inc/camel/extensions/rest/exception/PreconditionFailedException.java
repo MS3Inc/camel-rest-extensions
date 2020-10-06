@@ -20,6 +20,9 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when the headers conditions are false when checked on the server.
+ */
 public class PreconditionFailedException extends RestException {
 	public PreconditionFailedException(OperationResult.Message message) {
 		super(message);
@@ -29,6 +32,9 @@ public class PreconditionFailedException extends RestException {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 412 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(412);

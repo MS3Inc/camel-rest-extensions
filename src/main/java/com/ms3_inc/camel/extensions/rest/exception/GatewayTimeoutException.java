@@ -20,6 +20,10 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when the server doesn't
+ * receive a timely response from another server.
+ */
 public class GatewayTimeoutException extends RestException {
 	public GatewayTimeoutException(OperationResult.Message message) {
 		super(message);
@@ -29,6 +33,9 @@ public class GatewayTimeoutException extends RestException {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 504 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(504);

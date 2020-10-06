@@ -20,6 +20,10 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when the gateway or proxy server
+ * didn't receive a valid response from an inbound server.
+ */
 public class BadGatewayException extends RestException {
 	public BadGatewayException(OperationResult.Message message) {
 		super(message);
@@ -29,6 +33,9 @@ public class BadGatewayException extends RestException {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 502 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(502);

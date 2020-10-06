@@ -20,6 +20,9 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when there is an unexpected issue on the server side.
+ */
 public class InternalServerException extends RestException {
 	public InternalServerException(OperationResult.Message message) {
 		super(message);
@@ -29,6 +32,9 @@ public class InternalServerException extends RestException {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 500 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(500);

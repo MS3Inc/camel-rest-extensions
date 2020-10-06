@@ -20,15 +20,20 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when the functionality
+ * is not supported by the server.
+ */
 public class NotImplementedException extends RestException {
-	public NotImplementedException(OperationResult.Message message) {
-		super(message);
-	}
+	public NotImplementedException(OperationResult.Message message) { super(message); }
 
 	public NotImplementedException(Throwable cause, OperationResult.Message message) {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 501 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(501);

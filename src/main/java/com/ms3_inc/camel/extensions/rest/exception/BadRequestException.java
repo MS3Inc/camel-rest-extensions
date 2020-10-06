@@ -20,6 +20,10 @@ import com.ms3_inc.camel.extensions.rest.OperationResult;
 
 import java.util.Optional;
 
+/***
+ * This class is an exception thrown when the server can't or won't
+ * process the request due to a client side error.
+ */
 public class BadRequestException extends RestException {
 	public BadRequestException(OperationResult.Message message) {
 		super(message);
@@ -29,6 +33,9 @@ public class BadRequestException extends RestException {
 		super(message, cause);
 	}
 
+	/***
+	 * @return 400 wrapped in an {@link Optional}
+	 */
 	@Override
 	public Optional<Integer> httpStatusCode() {
 		return Optional.of(400);

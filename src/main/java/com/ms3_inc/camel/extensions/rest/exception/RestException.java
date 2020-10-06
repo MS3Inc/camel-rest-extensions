@@ -21,6 +21,10 @@ import org.apache.camel.CamelException;
 
 import java.util.Optional;
 
+/***
+ * Base class for all checked REST exceptions.
+ * @see <a href="https://tools.ietf.org/html/rfc7231#section-6.1">RFC Overview of Status Codes</a>
+ */
 public abstract class RestException extends CamelException {
 	private final OperationResult.Message message;
 
@@ -34,10 +38,20 @@ public abstract class RestException extends CamelException {
 		this.message = message;
 	}
 
+	/***
+	 * Getter for the {@code OperationResult.Message}.
+	 *
+	 * @return the {@code OperationResult.Message}
+	 */
 	public OperationResult.Message getOperationResultMessage() {
 		return message;
 	}
 
+	/***
+	 * The status code of the exception.
+	 *
+	 * @return the status code wrapped in an {@link Optional}
+	 */
 	public Optional<Integer> httpStatusCode() {
 		return Optional.empty();
 	}
