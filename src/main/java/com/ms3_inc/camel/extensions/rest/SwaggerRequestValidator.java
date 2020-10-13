@@ -128,7 +128,7 @@ public class SwaggerRequestValidator extends AsyncProcessorSupport {
         final String body = MessageHelper.extractBodyAsString(exchange.getMessage());
         final SimpleRequest.Builder requestBuilder = new SimpleRequest.Builder(method, path);
 
-        if (!body.isEmpty()) {
+        if (body != null && !body.isEmpty()) {
             requestBuilder.withBody(body);
         }
 
