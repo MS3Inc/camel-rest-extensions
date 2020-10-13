@@ -152,7 +152,7 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
         final String contentType = exchange.getMessage().getHeader(Exchange.CONTENT_TYPE, String.class);
         final DefaultRequest.Builder requestBuilder = new DefaultRequest.Builder(path, method);
 
-        if (!body.isEmpty()) {
+        if (body != null && !body.isEmpty()) {
             if (contentType.equals("application/xml")) {
                 JsonNode node = XML_MAPPER.createObjectNode();
 
