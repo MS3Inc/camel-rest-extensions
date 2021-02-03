@@ -1,7 +1,7 @@
-package com.ms3_inc.camel.extensions.rest;
+package com.ms3_inc.tavros.extensions.rest;
 
 /*-
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2020-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,13 @@ package com.ms3_inc.camel.extensions.rest;
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 import com.atlassian.oai.validator.OpenApiInteractionValidator;
 import com.atlassian.oai.validator.model.Request;
 import com.atlassian.oai.validator.model.SimpleRequest;
 import com.atlassian.oai.validator.report.SimpleValidationReportFormat;
 import com.atlassian.oai.validator.report.ValidationReport;
-import com.ms3_inc.camel.extensions.rest.OperationResult.MessageBuilder;
-import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
+import com.ms3_inc.tavros.extensions.rest.OperationResult.MessageBuilder;
+import com.ms3_inc.tavros.extensions.rest.exception.BadRequestException;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.CamelException;
 import org.apache.camel.Exchange;

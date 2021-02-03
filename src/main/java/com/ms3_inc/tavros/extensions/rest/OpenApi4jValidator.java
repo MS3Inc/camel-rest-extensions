@@ -1,7 +1,7 @@
-package com.ms3_inc.camel.extensions.rest;
+package com.ms3_inc.tavros.extensions.rest;
 
 /*-
- * Copyright 2019-2020 the original author or authors.
+ * Copyright 2020-2021 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@ package com.ms3_inc.camel.extensions.rest;
  * limitations under the License.
  */
 
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
-import com.ms3_inc.camel.extensions.rest.exception.BadRequestException;
+import com.ms3_inc.tavros.extensions.rest.exception.BadRequestException;
 import org.apache.camel.AsyncCallback;
 import org.apache.camel.Exchange;
 import org.apache.camel.support.AsyncProcessorSupport;
