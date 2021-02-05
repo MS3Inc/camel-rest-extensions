@@ -23,7 +23,7 @@
     <artifactId>rest-extensions</artifactId>
     <version>0.1.4-SNAPSHOT</version>
 
-    <name>Camel REST DSL OpenAPI Plugin</name>
+    <name>Camel Rest Extensions</name>
     <description>A collection of utilities for camel web applications</description>
     <url>https://github.com/MS3Inc/camel-rest-extensions</url>
     <inceptionYear>2020</inceptionYear>
