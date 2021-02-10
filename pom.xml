@@ -20,7 +20,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ms3-inc.tavros</groupId>
-    <artifactId>rest-extensions</artifactId>
+    <artifactId>camel-rest-extensions</artifactId>
     <version>0.1.4-SNAPSHOT</version>
 
     <name>Camel Rest Extensions</name>
