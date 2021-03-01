@@ -21,7 +21,7 @@
 
     <groupId>com.ms3-inc.tavros</groupId>
     <artifactId>camel-rest-extensions</artifactId>
-    <version>0.1.4-SNAPSHOT</version>
+    <version>0.1.4</version>
 
     <name>Camel Rest Extensions</name>
     <description>A collection of utilities for camel web applications</description>
@@ -54,7 +54,7 @@
         <connection>scm:git:https://github.com/MS3Inc/camel-rest-extensions.git</connection>
         <developerConnection>scm:git:https://github.com/MS3Inc/camel-rest-extensions.git</developerConnection>
         <url>https://github.com/MS3Inc/camel-extensions</url>
-      <tag>HEAD</tag>
+      <tag>0.1.4</tag>
   </scm>
 
     <distributionManagement>
