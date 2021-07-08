@@ -75,7 +75,6 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
      */
     public OpenApi4jValidator(String specPath, String basePath) {
         OpenApi3 api;
-
         try {
             api = new OpenApi3Parser().parse(new ClassPathResource(specPath).getFile(), false);
         } catch (ResolutionException | ValidationException | IOException caughtExc) {
@@ -150,16 +149,14 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
         final DefaultRequest.Builder requestBuilder = new DefaultRequest.Builder(path, method);
 
         if (body != null && !body.isEmpty()) {
-            if (contentType.equals("application/xml")) {
-                JsonNode node = XML_MAPPER.createObjectNode();
-
+            if ("application/xml".equals(contentType)) {
                 try {
-                    node = XML_MAPPER.readTree(body.getBytes());
+                    JsonNode node = XML_MAPPER.readTree(body);
+                    requestBuilder.body(Body.from(node));
                 } catch (IOException ioe) {
-                    LOGGER.error(ioe.getMessage());
+                    throw new RuntimeException(ioe);
                 }
-                requestBuilder.body(Body.from(node));
-            } else if (contentType.equals("application/json")) {
+            } else {
                 requestBuilder.body(Body.from(body));
             }
         }
