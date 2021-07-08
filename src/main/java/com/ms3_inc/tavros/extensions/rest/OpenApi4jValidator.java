@@ -123,7 +123,7 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
         StringBuilder diagnostics = new StringBuilder();
         LOGGER.debug(exception.results().toString());
         for (ValidationResults.ValidationItem result : results.items()) {
-            diagnostics.append(result.message()).append("\n");
+            diagnostics.append(result.toString()).append(System.lineSeparator());
         }
 
         return OperationResult.MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
