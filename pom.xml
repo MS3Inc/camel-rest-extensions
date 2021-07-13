@@ -64,9 +64,9 @@
             <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
         <snapshotRepository>
-            <id>ms3-nexus</id>
+            <id>sonatype-ossrh</id>
             <name>maven-snapshots</name>
-            <url>https://maven.ms3-inc.com/repository/maven-snapshots/</url>
+            <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
