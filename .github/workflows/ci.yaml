@@ -40,4 +40,6 @@ jobs:
           REPO_USER: ${{ secrets.REPO_USER }}
           REPO_PASSWORD: ${{ secrets.REPO_PASSWORD }}
         run: "./mvnw -V --no-transfer-progress --batch-mode --settings .settings.xml clean \
-        -Dlicense.skip=true -DskipTests -Dmaven.install.skip=true deploy"
+        -Dlicense.skip=true -DskipTests -Dmaven.install.skip=true \
+        -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true \
+        deploy"
