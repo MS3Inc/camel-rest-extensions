@@ -30,6 +30,7 @@ import org.openapi4j.operation.validator.model.Request;
 import org.openapi4j.operation.validator.model.impl.Body;
 import org.openapi4j.operation.validator.model.impl.DefaultRequest;
 import org.openapi4j.operation.validator.validation.RequestValidator;
+import org.openapi4j.operation.validator.validation.RequestValidatorExtension;
 import org.openapi4j.parser.OpenApi3Parser;
 import org.openapi4j.parser.model.v3.OpenApi3;
 import org.openapi4j.parser.model.v3.Server;
@@ -53,6 +54,9 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenApi4jValidator.class);
     private static final XmlMapper XML_MAPPER = new XmlMapper();
     private final RequestValidator openapi4jValidator;
+    private final static boolean mediaTypeParamSupport = Boolean.parseBoolean(
+            System.getProperty("camelx.rest.ff.mediaparams",
+            System.getenv().getOrDefault("CAMELX_REST_FF_MEDIAPARAMS", "false")));
 
     /**
      * Constructs the validator using an {@link OpenApi3} instance. The {@link OpenApi3Parser} parses the provided specification,
@@ -85,7 +89,10 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
             api.setServers(Collections.singletonList(new Server().setUrl(basePath)));
         }
 
-        openapi4jValidator = new RequestValidator(api);
+        if (mediaTypeParamSupport)
+            openapi4jValidator = new RequestValidatorExtension(api);
+        else
+            openapi4jValidator = new RequestValidator(api);
     }
 
     @Override
@@ -149,7 +156,7 @@ public class OpenApi4jValidator extends AsyncProcessorSupport {
         final DefaultRequest.Builder requestBuilder = new DefaultRequest.Builder(path, method);
 
         if (body != null && !body.isEmpty()) {
-            if ("application/xml".equals(contentType)) {
+            if (contentType != null && contentType.endsWith("xml")) {
                 try {
                     JsonNode node = XML_MAPPER.readTree(body);
                     requestBuilder.body(Body.from(node));
