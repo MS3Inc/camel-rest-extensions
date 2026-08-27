@@ -1,7 +1,7 @@
 package com.ms3_inc.tavros.extensions.rest;
 
 /*-
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package com.ms3_inc.tavros.extensions.rest;
 import org.apache.camel.builder.AdviceWithRouteBuilder;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.reifier.RouteReifier;
+import org.apache.camel.builder.AdviceWith;
 import org.apache.camel.test.junit5.CamelTestSupport;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
@@ -39,7 +39,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testValidHello(String input) throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -70,7 +70,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidHelloHeader(String input) throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -102,7 +102,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidHelloQuery(String input) throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -138,7 +138,7 @@ class ValidatorTest extends CamelTestSupport {
 	public void testInvalidHelloHeaderWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -172,7 +172,7 @@ class ValidatorTest extends CamelTestSupport {
 	public void testInvalidHelloWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -202,7 +202,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidGreetingJSON(String input) throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -235,7 +235,7 @@ class ValidatorTest extends CamelTestSupport {
 
 	@Test
 	public void testInvalidGreetingXML() throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
@@ -265,7 +265,7 @@ class ValidatorTest extends CamelTestSupport {
 
 	@Test
 	public void testValidGreetingXML() throws Exception {
-		RouteReifier.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
@@ -307,9 +307,15 @@ class ValidatorTest extends CamelTestSupport {
 					.host("0.0.0.0")
 					.port(9000);
 
+				// Camel 4 rejects duplicate `to` targets within a single rest-dsl
+				// definition. Declaring the two verbs as separate rest() blocks
+				// keeps both routed to direct:test, preserving the original route
+				// topology and ordering that the tests advise by index.
 				rest()
 					.get("/hello")
-						.to("direct:test")
+						.to("direct:test");
+
+				rest()
 					.post("/greeting")
 						.to("direct:test");
 
