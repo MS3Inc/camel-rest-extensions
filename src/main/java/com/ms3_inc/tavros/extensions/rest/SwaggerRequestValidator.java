@@ -1,7 +1,7 @@
 package com.ms3_inc.tavros.extensions.rest;
 
 /*-
- * Copyright 2020-2021 the original author or authors.
+ * Copyright 2020-2026 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -102,13 +102,20 @@ public class SwaggerRequestValidator extends AsyncProcessorSupport {
      * @return the {@code Message} with all of the information about the error
      */
     private static OperationResult.Message fromReport(ValidationReport report) {
-        // separates the report into a "Validation failed." line and the rest for diagnostics
-        String[] result = SimpleValidationReportFormat.getInstance().apply(report).split(System.lineSeparator(), 2);
-        OperationResult.Message message = MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
-            .withDiagnostics(result[1])
-            .build();
+        // Separates the report into a leading "Validation failed." line and the
+        // remainder, which becomes the diagnostics.
+        //
+        // Splitting on System.lineSeparator() is wrong: the formatter emits "\n"
+        // regardless of platform, so on Windows the split never matched, the array
+        // came back with a single element, and result[1] threw
+        // ArrayIndexOutOfBoundsException. Match any line ending instead, and
+        // tolerate a report with no second line.
+        String[] result = SimpleValidationReportFormat.getInstance().apply(report).split("\\R", 2);
+        String diagnostics = result.length > 1 ? result[1] : result[0];
 
-        return message;
+        return MessageBuilder.error("RequestValidationError", "HTTP request failed API specification validation.")
+            .withDiagnostics(diagnostics)
+            .build();
     }
 
     /**
