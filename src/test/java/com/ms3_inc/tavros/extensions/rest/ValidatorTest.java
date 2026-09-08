@@ -35,11 +35,25 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ValidatorTest extends CamelTestSupport {
+	private static final String HELLO_ROUTE = "hello-route";
+	private static final String GREETING_ROUTE = "greeting-route";
+
+	/**
+	 * Camel 4 requires the context to be stopped when adviceWith is applied. With
+	 * the default (false) CamelTestSupport starts the context in setUp, the advice
+	 * silently fails to take effect, and any restConfiguration change made in a
+	 * test comes too late to affect the already-created rest routes. Each test now
+	 * advises, then starts the context itself.
+	 */
+	@Override
+	public boolean isUseAdviceWith() {
+		return true;
+	}
 
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testValidHello(String input) throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(HELLO_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -54,6 +68,8 @@ class ValidatorTest extends CamelTestSupport {
 
 			}
 		});
+
+		context.start();
 
 		MockEndpoint mock = getMockEndpoint("mock:result");
 
@@ -63,6 +79,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 	}
@@ -70,7 +87,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidHelloHeader(String input) throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(HELLO_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -85,6 +102,8 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		context.start();
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -92,6 +111,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 
@@ -102,7 +122,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidHelloQuery(String input) throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(HELLO_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -117,6 +137,8 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		context.start();
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -125,6 +147,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 
@@ -138,7 +161,7 @@ class ValidatorTest extends CamelTestSupport {
 	public void testInvalidHelloHeaderWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(HELLO_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -153,6 +176,8 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		context.start();
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -160,6 +185,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 
@@ -172,7 +198,7 @@ class ValidatorTest extends CamelTestSupport {
 	public void testInvalidHelloWithBasePath(String input) throws Exception {
 		context.getRestConfiguration().setContextPath("/api");
 
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(1), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(HELLO_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -187,6 +213,8 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		context.start();
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -195,6 +223,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 	}
@@ -202,7 +231,7 @@ class ValidatorTest extends CamelTestSupport {
 	@ParameterizedTest(name = "#{index} - Test with: {0}")
 	@MethodSource("validatorProvider")
 	public void testInvalidGreetingJSON(String input) throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(0), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(GREETING_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				if (input.equals("openapi4j")) {
@@ -217,6 +246,8 @@ class ValidatorTest extends CamelTestSupport {
 			}
 		});
 
+		context.start();
+
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
 		CloseableHttpClient httpClient = HttpClientBuilder.create().build();
@@ -226,6 +257,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 
@@ -235,7 +267,7 @@ class ValidatorTest extends CamelTestSupport {
 
 	@Test
 	public void testInvalidGreetingXML() throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(GREETING_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
@@ -243,6 +275,8 @@ class ValidatorTest extends CamelTestSupport {
 				;
 			}
 		});
+
+		context.start();
 
 		MockEndpoint mock = getMockEndpoint("mock:error");
 
@@ -256,6 +290,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 
@@ -265,7 +300,7 @@ class ValidatorTest extends CamelTestSupport {
 
 	@Test
 	public void testValidGreetingXML() throws Exception {
-		AdviceWith.adviceWith(context.getRouteDefinitions().get(2), context, new AdviceWithRouteBuilder() {
+		AdviceWith.adviceWith(GREETING_ROUTE, context, new AdviceWithRouteBuilder() {
 			@Override
 			public void configure() throws Exception {
 				interceptFrom()
@@ -273,6 +308,8 @@ class ValidatorTest extends CamelTestSupport {
 				;
 			}
 		});
+
+		context.start();
 
 		MockEndpoint mock = getMockEndpoint("mock:result");
 
@@ -286,6 +323,7 @@ class ValidatorTest extends CamelTestSupport {
 
 		httpClient.execute(req);
 
+		mock.setResultWaitTime(5000);
 		mock.expectedMessageCount(1);
 		mock.assertIsSatisfied();
 	}
@@ -307,19 +345,26 @@ class ValidatorTest extends CamelTestSupport {
 					.host("0.0.0.0")
 					.port(9000);
 
-				// Camel 4 rejects duplicate `to` targets within a single rest-dsl
-				// definition. Declaring the two verbs as separate rest() blocks
-				// keeps both routed to direct:test, preserving the original route
-				// topology and ordering that the tests advise by index.
+				// Camel 4 inlines a rest verb and the direct route it targets into a
+				// single route definition (restConfiguration inlineRoutes, default
+				// true). Two verbs cannot share one direct consumer under inlining, and
+				// the merged definition takes the id of the consumer route - which is
+				// what the tests advise by.
 				rest()
 					.get("/hello")
-						.to("direct:test");
+						.to("direct:hello");
 
 				rest()
 					.post("/greeting")
-						.to("direct:test");
+						.to("direct:greeting");
 
-				from("direct:test")
+				from("direct:hello")
+					.routeId(HELLO_ROUTE)
+					.log("${body}")
+					.to("mock:result");
+
+				from("direct:greeting")
+					.routeId(GREETING_ROUTE)
 					.log("${body}")
 					.to("mock:result");
 			}
